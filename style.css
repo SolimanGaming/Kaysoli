@@ -1,0 +1,62 @@
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background-color: #0b1f3a;
+  color: white;
+}
+header {
+  background-color: #122c57;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+button {
+  background-color: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+}
+main {
+  padding: 2rem;
+}
+.card {
+  background: #1f3b70;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 16px;
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  justify-content: center; align-items: center;
+}
+.modal-content {
+  background: white;
+  color: black;
+  padding: 2rem;
+  border-radius: 12px;
+}
+.modal-content input {
+  display: block;
+  margin: 1rem 0;
+  width: 100%;
+  padding: 0.5rem;
+}
+.admin-panel {
+  display: none;
+  padding: 2rem;
+  background-color: #142850;
+}
+#dropZone {
+  margin-top: 1rem;
+  border: 2px dashed white;
+  padding: 2rem;
+  border-radius: 12px;
+}

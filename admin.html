@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Texture Pack Admin Panel</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background-color: #0b1f3a;
+      color: white;
+    }
+    header {
+      background-color: #122c57;
+      padding: 1rem;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+    }
+    main {
+      padding: 2rem;
+    }
+    .upload-box {
+      border: 2px dashed white;
+      padding: 2rem;
+      text-align: center;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-radius: 10px;
+      border: none;
+    }
+    button {
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .download-link {
+      display: block;
+      margin-top: 1rem;
+      color: #00e5ff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Panel</h1>
+  </header>
+  <main>
+    <div class="upload-box" id="dropArea">
+      <p>Drag & drop texture pack image here</p>
+      <input type="file" id="imageInput" accept="image/*" />
+    </div>
+    <input type="text" id="packName" placeholder="Texture Pack Name" />
+    <textarea id="packDesc" rows="4" placeholder="Description"></textarea>
+    <input type="text" id="downloadLink" placeholder="Direct Download URL" />
+    <button onclick="generatePage()">Generate HTML Page</button>
+    <a id="downloadAnchor" class="download-link" style="display:none;">Download Page</a>
+  </main>
+
+  <script>
+    let uploadedImage = "";
+
+    document.getElementById("imageInput").addEventListener("change", function(e) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        uploadedImage = event.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function generatePage() {
+      const name = document.getElementById("packName").value;
+      const desc = document.getElementById("packDesc").value;
+      const download = document.getElementById("downloadLink").value;
+
+      const page = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${name}</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background-color: #0b1f3a;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    .card {
+      background: #1f3b70;
+      padding: 2rem;
+      border-radius: 16px;
+    }
+    img {
+      max-width: 100%%;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+    a.button {
+      display: inline-block;
+      background: #1e3a8a;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>${name}</h1>
+    <img src="${uploadedImage}" alt="Texture Pack Image" />
+    <p>${desc}</p>
+    <a href="${download}" class="button" download>Download</a>
+  </div>
+</body>
+</html>
+      `;
+
+      const blob = new Blob([page], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.getElementById("downloadAnchor");
+      anchor.href = url;
+      anchor.download = name.replace(/\s+/g, "_").toLowerCase() + ".html";
+      anchor.textContent = "Download Page: " + anchor.download;
+      anchor.style.display = "block";
+    }
+  </script>
+</body>
+</html>

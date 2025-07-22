@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft Texture Packs</title>
+  <link href="style.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Texture Packs</h1>
+    <button id="loginBtn">Login / Signup</button>
+    <button id="adminBtn" style="display: none;">Admin Panel</button>
+  </header>
+
+  <main>
+    <section id="packsContainer">
+      <div class="card">Texture Pack 1</div>
+      <div class="card">Texture Pack 2</div>
+    </section>
+  </main>
+
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="closeBtn">&times;</span>
+      <h2>Login</h2>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="submitLogin">Submit</button>
+    </div>
+  </div>
+
+  <div id="adminPanel" class="admin-panel">
+    <h2>Admin Panel</h2>
+    <div id="dropZone">Drag and drop texture packs here</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
