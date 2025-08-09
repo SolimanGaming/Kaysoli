@@ -1,39 +1,15 @@
-
-document.getElementById('loginBtn').onclick = () => {
-  document.getElementById('loginModal').style.display = 'flex';
-};
-
-document.querySelector('.closeBtn').onclick = () => {
-  document.getElementById('loginModal').style.display = 'none';
-};
-
-document.getElementById('submitLogin').onclick = () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  if (email === 'solimangaming@hotmail.com' && password === 'Soliman@1234') {
-    document.getElementById('adminBtn').style.display = 'inline-block';
-    alert("Logged in as Admin");
-  } else {
-    alert("Incorrect credentials");
-  }
-  document.getElementById('loginModal').style.display = 'none';
-};
-
-document.getElementById('adminBtn').onclick = () => {
-  const panel = document.getElementById('adminPanel');
-  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-};
-
-const dropZone = document.getElementById('dropZone');
-dropZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropZone.style.borderColor = 'lime';
+// Glowing links hover effect
+document.querySelectorAll('.glow-link, .links a').forEach(link => {
+    link.addEventListener('mousemove', e => {
+        const rect = link.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        link.style.boxShadow = `${x / 2}px ${y / 2}px 20px rgba(255,255,255,0.9)`;
+    });
+    link.addEventListener('mouseleave', () => {
+        link.style.boxShadow = "0 0 10px rgba(255, 255, 255, 0.3)";
+    });
 });
-dropZone.addEventListener('dragleave', () => {
-  dropZone.style.borderColor = 'white';
-});
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  alert("Dropped file: " + e.dataTransfer.files[0].name);
-  dropZone.style.borderColor = 'white';
-});
+
+
+

@@ -1,62 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  background-color: #0b1f3a;
-  color: white;
+    background: linear-gradient(135deg, #000000, #ffffff);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    color: #222;
+    font-family: 'Quicksand', sans-serif; /* Round, smooth font */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
-header {
-  background-color: #122c57;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
-button {
-  background-color: #1e3a8a;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  cursor: pointer;
+
+.container {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    width: 80%;
+    max-width: 900px;
+    min-height: 80vh; /* More vertical space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
-main {
-  padding: 2rem;
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #ccc;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    transition: box-shadow 0.3s ease;
 }
-.card {
-  background: #1f3b70;
-  padding: 1rem;
-  margin: 1rem 0;
-  border-radius: 16px;
+
+.profile-pic:hover {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(0, 0, 0, 0.4);
 }
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  justify-content: center; align-items: center;
+
+.name {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin: 20px 0 10px;
+    color: #111;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    letter-spacing: 1px;
+    border-radius: 8px;
+    padding: 5px 15px;
 }
-.modal-content {
-  background: white;
-  color: black;
-  padding: 2rem;
-  border-radius: 12px;
+
+.bio {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 5px 10px;
 }
-.modal-content input {
-  display: block;
-  margin: 1rem 0;
-  width: 100%;
-  padding: 0.5rem;
+
+.links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
-.admin-panel {
-  display: none;
-  padding: 2rem;
-  background-color: #142850;
+
+.links a {
+    text-decoration: none;
+    color: #111;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
 }
-#dropZone {
-  margin-top: 1rem;
-  border: 2px dashed white;
-  padding: 2rem;
-  border-radius: 12px;
+
+.links a:hover {
+    background: white;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+}
+
+.music-player {
+    margin-top: 20px;
+    color: #111;
+}
+
+.music-player h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+#play-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+#play-btn:hover {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.progress-container {
+    background: rgba(255, 255, 255, 0.3);
+    height: 6px;
+    width: 200px;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.progress-bar {
+    background: white;
+    height: 100%;
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 1);
 }
