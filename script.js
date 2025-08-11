@@ -14,8 +14,9 @@ document.querySelectorAll('.glow-link, .links a').forEach(link => {
 // =========================
 // Bedwars Stats Popup Logic
 // =========================
-const API_KEY = "4f0bdb4c-572c-4571-b5b3-4906063bcfd8"; // Replace with your Hypixel API key
-const PLAYER_NAME = "yhSoli"; // Replace with your Minecraft username
+const API_KEY = "YOUR_API_KEY"; // Replace with your Hypixel API key
+const PLAYER_NAME = "YOUR_USERNAME"; // Replace with your Minecraft username
+const PROXY = "https://corsproxy.io/?";
 
 document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
     e.preventDefault();
@@ -23,28 +24,33 @@ document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
     document.getElementById('bw-content').innerHTML = "Loading...";
 
     try {
-        // Get UUID from Mojang API
+        // 1. Get UUID from Mojang API (no proxy needed)
         const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${PLAYER_NAME}`);
         const mojangData = await mojangRes.json();
         const uuid = mojangData.id;
 
-        // Get player info from Hypixel API
-        const hypixelRes = await fetch(`https://api.hypixel.net/player?key=${API_KEY}&uuid=${uuid}`);
+        // 2. Get player info from Hypixel API (via proxy)
+        const hypixelRes = await fetch(`${PROXY}https://api.hypixel.net/player?key=${API_KEY}&uuid=${uuid}`);
         const hypixelData = await hypixelRes.json();
+
+        if (!hypixelData.success) {
+            throw new Error(hypixelData.cause || "Failed to fetch player data");
+        }
+
         const player = hypixelData.player;
         const bedwars = player?.stats?.Bedwars || {};
         const level = player?.achievements?.bedwars_level || 0;
         const rank = player?.newPackageRank || "Default";
 
-        // Get guild info
-        const guildRes = await fetch(`https://api.hypixel.net/guild?key=${API_KEY}&player=${uuid}`);
+        // 3. Get guild info (via proxy)
+        const guildRes = await fetch(`${PROXY}https://api.hypixel.net/guild?key=${API_KEY}&player=${uuid}`);
         const guildData = await guildRes.json();
         const guildName = guildData.guild?.name || "No Guild";
 
-        // Player skin
+        // 4. Player skin
         const skinURL = `https://crafatar.com/avatars/${uuid}?overlay`;
 
-        // Build popup content
+        // 5. Build popup content
         document.getElementById('bw-content').innerHTML = `
             <img src="${skinURL}" width="100" height="100">
             <h2>${PLAYER_NAME}</h2>
@@ -59,7 +65,7 @@ document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
             <p><strong>Beds Lost:</strong> ${bedwars.beds_lost_bedwars || 0}</p>
         `;
     } catch (err) {
-        document.getElementById('bw-content').innerHTML = "Error loading stats.";
+        document.getElementById('bw-content').innerHTML = "Error loading stats: " + err.message;
         console.error(err);
     }
 });
@@ -68,4 +74,3 @@ document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
 document.getElementById('popup-close').addEventListener('click', () => {
     document.getElementById('bw-popup').style.display = 'none';
 });
-
