@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-$apiKey = "YOUR_API_KEY"; // Replace with your Hypixel API key
+$apiKey = "4f0bdb4c-572c-4571-b5b3-4906063bcfd8"; // Replace with your Hypixel API key
 $uuid = $_GET['uuid'] ?? '';
 
 if (!$uuid) {
