@@ -14,8 +14,8 @@ document.querySelectorAll('.glow-link, .links a').forEach(link => {
 // =========================
 // Bedwars Stats Popup Logic
 // =========================
-const API_KEY = "YOUR_API_KEY"; // Replace with your Hypixel API key
-const PLAYER_NAME = "YOUR_USERNAME"; // Replace with your Minecraft username
+const API_KEY = "4f0bdb4c-572c-4571-b5b3-4906063bcfd8"; // Replace with your Hypixel API key
+const PLAYER_NAME = "yhSoli"; // Replace with your Minecraft username
 
 document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
     e.preventDefault();
@@ -68,3 +68,4 @@ document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
 document.getElementById('popup-close').addEventListener('click', () => {
     document.getElementById('bw-popup').style.display = 'none';
 });
+
