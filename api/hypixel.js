@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: "UUID required" });
   }
 
-  const API_KEY = "d8ef70a8-ea07-4f1b-a890-43c95ed5ba6f"; // replace with your Hypixel API key
+  const API_KEY = "3e6f76ed-09e6-465d-972f-08716da6009a"; // replace with your Hypixel API key
 
   try {
     // Player data
