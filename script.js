@@ -18,7 +18,7 @@ document.querySelectorAll('.glow-link, .links a').forEach(link => {
 // Replace these with your own details
 const uuid = "ae24c7c71f4442c2aa406d218e6c1d8c";
 const PLAYER_NAME = "yhSoli";
-const API_KEY = "d8ef70a8-ea07-4f1b-a890-43c95ed5ba6f";
+const API_KEY = "3e6f76ed-09e6-465d-972f-08716da6009a";
 
 document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
   e.preventDefault();
@@ -65,5 +65,6 @@ document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
 document.getElementById('popup-close').addEventListener('click', () => {
   document.getElementById('bw-popup').style.display = 'none';
 });
+
 
 
