@@ -16,8 +16,8 @@ document.querySelectorAll('.glow-link, .links a').forEach(link => {
 // =========================
 
 // Replace these with your own details
-const UUID = "PUT-YOUR-UUID-HERE";
-const PLAYER_NAME = "PUT-YOUR-NAME-HERE";
+const UUID = "ae24c7c71f4442c2aa406d218e6c1d8c";
+const PLAYER_NAME = "yhSoli";
 
 document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
   e.preventDefault();
@@ -64,3 +64,4 @@ document.getElementById('bw-stats-btn').addEventListener('click', async (e) => {
 document.getElementById('popup-close').addEventListener('click', () => {
   document.getElementById('bw-popup').style.display = 'none';
 });
+
