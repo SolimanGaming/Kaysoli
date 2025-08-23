@@ -2,71 +2,165 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>❧ !Soli</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Soli | Hypixel Stats</title>
   <style>
-    /* Popup styles */
-    .popup {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
+    body {
+      background: #0f0f1a;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
-    .popup-content {
-      background: white;
-      color: black;
-      padding: 20px;
-      border-radius: 12px;
-      width: 350px;
-      max-width: 90%;
-      margin: 100px auto;
-      box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+    .card {
+      background: #151528;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
       text-align: center;
-      animation: popupFade 0.3s ease;
+      max-width: 500px;
+      width: 100%;
+      animation: fadeIn 1s ease forwards;
     }
-    @keyframes popupFade {
-      from {opacity: 0; transform: translateY(-20px);}
-      to {opacity: 1; transform: translateY(0);}
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.95);}
+      to {opacity: 1; transform: scale(1);}
     }
-    #popup-close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    .popup img {
-      border-radius: 8px;
+    h1 {
+      font-size: 2em;
       margin-bottom: 10px;
     }
+    .rank {
+      font-weight: bold;
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .stats {
+      text-align: left;
+      font-size: 1.2em;
+      margin-top: 20px;
+      line-height: 1.8;
+    }
+    .input-box {
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 1em;
+      margin-right: 10px;
+      width: 60%;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #4f46e5;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #4338ca;
+    }
+    /* Hypixel rank colors */
+    .VIP { color: #55FF55; }
+    .VIPPLUS { color: #55FF55; }
+    .MVP { color: #55FFFF; }
+    .MVPPLUS { color: #55FFFF; }
+    .MVPPLUSPLUS { color: #FFAA00; } /* MVP++ gold */
+    .YOUTUBER { color: #FF5555; }
+    .DEFAULT { color: #AAAAAA; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="profile.jpg" alt="Profile Picture" class="profile-pic">
-    <h1 class="name">Soli/h1>
-
-    <p class="bio">Java/HTML/CSS dev, with cert in each :D</p>
-
-    <div class="links">
-      <a href="#" class="glow-link">Twitter</a>
-      <a href="#" class="glow-link">Instagram</a>
-      <a href="#" class="glow-link">GitHub</a>
-      <a href="#" id="bw-stats-btn" class="glow-link">Bedwars Stats</a>
+  <div class="card" id="statsCard">
+    <h1>Hypixel Bedwars Stats</h1>
+    <div class="input-box">
+      <input type="text" id="usernameInput" placeholder="Enter Username">
+      <button onclick="fetchStats()">Check</button>
     </div>
+    <div id="playerName"></div>
+    <div class="rank" id="playerRank"></div>
+    <div class="stats" id="stats"></div>
   </div>
 
-  <!-- Popup -->
-  <div id="bw-popup" class="popup">
-    <div class="popup-content">
-      <span id="popup-close">&times;</span>
-      <div id="bw-content">Loading...</div>
-    </div>
-  </div>
+  <script>
+    const apiKey = "3e6f76ed-09e6-465d-972f-08716da6009a";
 
-  <script src="script.js"></script>
+    async function fetchStats() {
+      const username = document.getElementById("usernameInput").value.trim();
+      if (!username) return;
+
+      document.getElementById("playerName").textContent = "Loading...";
+      document.getElementById("playerRank").textContent = "";
+      document.getElementById("stats").textContent = "";
+
+      try {
+        // Step 1: Get UUID
+        const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+        const mojangData = await mojangRes.json();
+        const uuid = mojangData.id;
+
+        // Step 2: Fetch Hypixel stats
+        const hypixelRes = await fetch(`https://api.hypixel.net/player?key=${apiKey}&uuid=${uuid}`);
+        const hypixelData = await hypixelRes.json();
+        const player = hypixelData.player;
+
+        // Display player name
+        document.getElementById("playerName").textContent = player.displayname;
+
+        // Rank handling
+        let rank = player.newPackageRank || "DEFAULT";
+        if (player.rank) rank = player.rank; // Special ranks like YT
+        if (rank === "VIP_PLUS") rank = "VIPPLUS";
+        if (rank === "MVP_PLUS") rank = "MVPPLUS";
+        if (rank === "MVP_PLUS_PLUS") rank = "MVPPLUSPLUS";
+
+        // Show formatted rank
+        const rankElement = document.getElementById("playerRank");
+        rankElement.textContent = formatRank(rank);
+        rankElement.className = "rank " + rank;
+
+        // Bedwars stats
+        const bw = player.stats?.Bedwars || {};
+        const statsHTML = `
+          ⭐ Level: ${player.achievements?.bedwars_level || 0}<br>
+          ⚔️ Kills: ${bw.kills_bedwars || 0}<br>
+          ☠️ Deaths: ${bw.deaths_bedwars || 0}<br>
+          🛏 Beds Broken: ${bw.beds_broken_bedwars || 0}<br>
+          🏆 Wins: ${bw.wins_bedwars || 0}<br>
+          ❌ Losses: ${bw.losses_bedwars || 0}
+        `;
+        document.getElementById("stats").innerHTML = statsHTML;
+      } catch (err) {
+        document.getElementById("playerName").textContent = "Error loading stats";
+        console.error(err);
+      }
+    }
+
+    function formatRank(rank) {
+      switch(rank) {
+        case "VIP": return "[VIP]";
+        case "VIPPLUS": return "[VIP+]";
+        case "MVP": return "[MVP]";
+        case "MVPPLUS": return "[MVP+]";
+        case "MVPPLUSPLUS": return "[MVP++]";
+        case "YOUTUBER": return "[YOUTUBE]";
+        default: return "[DEFAULT]";
+      }
+    }
+  </script>
 </body>
 </html>
