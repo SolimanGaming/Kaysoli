@@ -1,141 +1,364 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Soli | Bedwars Stats</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Bedwars Stats | Kaysoli</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1220" />
   <style>
-    body {
-      background: #fff;
-      font-family: Arial, sans-serif;
-      color: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
+    /* Your existing CSS from before (unchanged) */
+   :root{
+      --bg: #0b1220;
+      --bg2: #0e1528;
+      --card: rgba(255,255,255,0.06);
+      --text: #eaf0ff;
+      --muted: #8ea2c6;
+      --accent: #6ea8ff;
+      --good: #73e2a7;
+      --bad: #ff7a7a;
+      --warn: #ffd479;
+      --shadow: 0 20px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+      --radius: 24px;
     }
-    .container {
-      text-align: center;
-      max-width: 600px;
+    *{ box-sizing: border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      font-family: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 80% -10%, #1c2e6b33 0%, transparent 60%),
+        radial-gradient(1000px 700px at -10% 110%, #4b79ff22 0%, transparent 60%),
+        linear-gradient(180deg, #0a1120 0%, #0b1220 100%);
+      overflow-x: hidden;
     }
-    input {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-right: 10px;
-      width: 60%;
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 22px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
-    button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #111;
-      color: #fff;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.2s;
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 12px;
+      z-index: 3;
     }
-    button:hover {
-      background: #444;
+    .avatar{
+      width:64px;height:64px;border-radius:18px; overflow:hidden; flex-shrink:0;
+      box-shadow: 0 10px 20px rgba(0,0,0,.35);
+      transform: translateZ(0);
     }
-    .rank {
-      font-weight: bold;
-      font-size: 20px;
-      margin-top: 10px;
+    .avatar img{ width:100%; height:100%; image-rendering: pixelated }
+    .titleblock{ display:flex; flex-direction:column; gap:6px; min-width:0 }
+    h1{
+      font-size: 20px; margin:0; letter-spacing:.2px; display:flex; gap:10px; align-items: center;
     }
-    .stats {
-      text-align: left;
-      margin-top: 20px;
-      font-size: 16px;
-      line-height: 1.6;
+    .rank-badge{
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.16);
+      font-size: 12px;
+      letter-spacing:.4px
     }
-    /* Hypixel rank colors */
-    .VIP { color: #55FF55; }
-    .VIPPLUS { color: #55FF55; }
-    .MVP { color: #55FFFF; }
-    .MVPPLUS { color: #55FFFF; }
-    .MVPPLUSPLUS { color: #FFAA00; }
-    .YOUTUBER { color: #FF5555; }
-    .DEFAULT { color: #888; }
+    .subtitle{ color: var(--muted); font-size:13px; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .controls{
+      margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap: wrap;
+    }
+    .input{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: var(--text);
+      outline:none;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .input:focus{
+      border-color: #7fb3ff;
+      box-shadow: 0 0 0 6px rgba(127,179,255,.09);
+      transform: translateY(-1px);
+    }
+    .btn{
+      background: linear-gradient(180deg, #6ea8ff, #5a96ff);
+      color:#081228;
+      font-weight: 800;
+      border:none;
+      padding: 10px 14px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: transform .15s ease, filter .15s ease, box-shadow .2s ease;
+      box-shadow: 0 12px 24px rgba(82,126,255,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+    .btn:hover{ transform: translateY(-2px); filter: brightness(1.03) }
+    .btn:active{ transform: translateY(0) scale(.98) }
+    .ghost{
+      background: transparent;
+      color: var(--text);
+      border: 1px dashed rgba(255,255,255,.18);
+      box-shadow: none;
+    }
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    @media (min-width: 900px){
+      .cards{ grid-template-columns: repeat(4, 1fr) }
+    }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-height: 110px;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(6px) scale(0.98);
+      opacity: 0;
+      animation: pop .6s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    .card:nth-child(1){ animation-delay: .02s }
+    .card:nth-child(2){ animation-delay: .06s }
+    .card:nth-child(3){ animation-delay: .10s }
+    .card:nth-child(4){ animation-delay: .14s }
+    .card:nth-child(5){ animation-delay: .18s }
+    .card:nth-child(6){ animation-delay: .22s }
+    .card:nth-child(7){ animation-delay: .26s }
+    .card:nth-child(8){ animation-delay: .30s }
+    @keyframes pop{
+      to{ transform: translateY(0) scale(1); opacity: 1 }
+    }
+    .label{ color: var(--muted); font-size: 13px; letter-spacing:.4px }
+    .value{ font-size: 28px; font-weight: 800; margin-top: 4px }
+    .chip{ position:absolute; right:12px; top:12px; font-size: 11px; opacity:.9; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14) }
+    .good{ background: rgba(115,226,167,.12); color:#a7ffd2 }
+    .bad{ background: rgba(255,122,122,.12); color:#ffb3b3 }
+    .warn{ background: rgba(255,212,121,.12); color:#ffe3a4 }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .row{ display:flex; gap:18px; align-items:stretch; flex-wrap: wrap }
+    .col{ flex:1; min-width: 260px }
+    .skeleton{
+      background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.14), rgba(255,255,255,.06));
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 12px;
+      height: 18px;
+      opacity:.8
+    }
+    @keyframes shimmer{
+      0%{ background-position: 200% 0 }
+      100%{ background-position: -200% 0 }
+    }
+    .footer{
+      color: var(--muted);
+      text-align:center;
+      font-size:12px;
+      padding: 14px 0 40px;
+      opacity:.8
+    }
+    .pulse{
+      animation: pulsey 1.6s ease-in-out infinite;
+    }
+    @keyframes pulsey{
+      0%,100%{ transform: scale(1) }
+      50%{ transform: scale(1.03) }
+    }
+    .tiny{ font-size: 11px; color: var(--muted); letter-spacing:.3px }
+    .bubble{
+      position: fixed;
+      pointer-events:none;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #9cc3ff33, transparent 60%);
+      width: 24px; height:24px;
+      filter: blur(1px);
+      animation: float 12s ease-in-out infinite;
+      opacity: .35;
+      z-index: 0;
+    }
+    @keyframes float{
+      0%{ transform: translateY(0) translateX(0) }
+      50%{ transform: translateY(-18px) translateX(6px) }
+      100%{ transform: translateY(0) translateX(0) }
+    }
+    /* ... all the previous CSS stays the same ... */
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Hypixel Bedwars Stats</h1>
-    <input type="text" id="usernameInput" placeholder="Enter Username">
-    <button onclick="fetchStats()">Check</button>
+  <div class="grid">
+    <header>
+      <div class="avatar"><img id="skin" alt="Skin" src="https://crafatar.com/avatars/8667ba71b85a4004af54457a9734eed7?overlay"></div>
+      <div class="titleblock">
+        <h1>
+          <span id="ign">Your IGN</span>
+          <span id="rank" class="rank-badge">RANK</span>
+        </h1>
+        <div class="subtitle" id="subtitle">BedWars stats dashboard</div>
+      </div>
+      <div class="controls">
+        <input class="input" id="nameOrUuid" placeholder="Enter IGN or UUID" spellcheck="false">
+        <button class="btn" id="refreshBtn">Refresh</button>
+      </div>
+    </header>
 
-    <div id="playerName"></div>
-    <div class="rank" id="playerRank"></div>
-    <div class="stats" id="stats"></div>
+    <section class="cards" id="cards">
+      <div class="card"><div class="label">Final Kills</div><div class="value" id="final_kills">—</div><span class="chip good">Aggro</span></div>
+      <div class="card"><div class="label">Final Deaths</div><div class="value" id="final_deaths">—</div><span class="chip bad">Clutch?</span></div>
+      <div class="card"><div class="label">FKDR</div><div class="value" id="fkdr">—</div><span class="chip" id="fkdrChip">—</span></div>
+      <div class="card"><div class="label">Kills</div><div class="value" id="kills">—</div><span class="chip good">Pressure</span></div>
+      <div class="card"><div class="label">Deaths</div><div class="value" id="deaths">—</div><span class="chip bad">Survive</span></div>
+      <div class="card"><div class="label">KDR</div><div class="value" id="kdr">—</div><span class="chip" id="kdrChip">—</span></div>
+      <div class="card"><div class="label">Wins</div><div class="value" id="wins">—</div><span class="chip good">GG</span></div>
+      <div class="card"><div class="label">Losses</div><div class="value" id="losses">—</div><span class="chip bad">Next</span></div>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <div class="col">
+          <div class="label">W/L Ratio</div>
+          <div class="value" id="wlr">—</div>
+          <div class="tiny" id="gamesPlayed">—</div>
+        </div>
+        <div class="col">
+          <div class="label">Beds Broken / Lost</div>
+          <div class="value"><span id="beds_broken">—</span> <span class="tiny">broken</span> · <span id="beds_lost">—</span> <span class="tiny">lost</span></div>
+          <div class="tiny">BBLR: <span id="bblr">—</span></div>
+        </div>
+        <div class="col">
+          <div class="label">Star (Level)</div>
+          <div class="value" id="bw_star">—✯</div>
+          <div class="tiny">Experience: <span id="bw_xp">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="label">Recent Status</div>
+      <div id="status" class="skeleton" style="height:40px;margin-top:10px;border-radius:14px"></div>
+    </section>
+
+    <footer>
+COPYRIGHT Kaysoli 2025
+</footer>
   </div>
 
   <script>
-    const apiKey = "3e6f76ed-09e6-465d-972f-08716da6009a";
+    const el = id => document.getElementById(id);
+    const ignEl = el('ign'), rankEl = el('rank'), skinEl = el('skin'), subtitleEl = el('subtitle');
+    const statsEls = {
+      final_kills: el('final_kills'), final_deaths: el('final_deaths'),
+      fkdr: el('fkdr'), fkdrChip: el('fkdrChip'),
+      kills: el('kills'), deaths: el('deaths'),
+      kdr: el('kdr'), kdrChip: el('kdrChip'),
+      wins: el('wins'), losses: el('losses'),
+      wlr: el('wlr'), beds_broken: el('beds_broken'),
+      beds_lost: el('beds_lost'), bblr: el('bblr'),
+      bw_star: el('bw_star'), bw_xp: el('bw_xp'),
+      gamesPlayed: el('gamesPlayed'), status: el('status')
+    };
+    const nameInput = el('nameOrUuid');
+    const refreshBtn = el('refreshBtn');
 
-    async function fetchStats() {
-      const username = document.getElementById("usernameInput").value.trim();
-      if (!username) return;
+    const API_KEY = '3e6f76ed-09e6-465d-972f-08716da6009a'; // <-- replace this with your Hypixel API key
 
-      document.getElementById("playerName").textContent = "Loading...";
-      document.getElementById("playerRank").textContent = "";
-      document.getElementById("stats").textContent = "";
+    function pretty(n){ return Number(n||0).toLocaleString(); }
+    function ratio(a,b){ a=Number(a||0);b=Number(b||0); return b===0?a.toFixed(2):(a/b).toFixed(2); }
 
+    function setStatusHint(text){
+      statsEls.status.classList.remove('skeleton');
+      statsEls.status.style.padding='12px 14px';
+      statsEls.status.style.background='rgba(255,255,255,.06)';
+      statsEls.status.style.border='1px solid rgba(255,255,255,.12)';
+      statsEls.status.style.borderRadius='14px';
+      statsEls.status.textContent=text;
+    }
+
+    async function resolveUuid(nameOrUuid){
+      const raw=nameOrUuid.trim();
+      if(/^[0-9a-f]{32}$/i.test(raw)||/^[0-9a-f-]{36}$/i.test(raw)) return raw.replace(/-/g,'');
+      try{
+        const r = await fetch(`https://api.ashcon.app/mojang/v2/user/${encodeURIComponent(raw)}`);
+        if(!r.ok) throw new Error('Player not found');
+        const j=await r.json();
+        return j.uuid.replace(/-/g,'');
+      }catch(e){throw new Error('Could not resolve UUID for "'+raw+'".');}
+    }
+
+    async function load(nameOrUuid){
+      setStatusHint('Loading...');
       try {
-        // Mojang UUID lookup
-        const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
-        if (!mojangRes.ok) throw new Error("Invalid username");
-        const mojangData = await mojangRes.json();
-        const uuid = mojangData.id;
+        const uuid = await resolveUuid(nameOrUuid);
+        const res = await fetch(`https://api.hypixel.net/player?key=${API_KEY}&uuid=${uuid}`);
+        const data = await res.json();
+        if(!data.success||!data.player) throw new Error('No Hypixel data found');
 
-        // Hypixel API call
-        const hypixelRes = await fetch(`https://api.hypixel.net/player?key=${apiKey}&uuid=${uuid}`);
-        const hypixelData = await hypixelRes.json();
-        const player = hypixelData.player;
+        const p = data.player;
+        ignEl.textContent = p.displayname || nameOrUuid;
+        rankEl.textContent = p.rank || p.monthlyPackageRank || p.newPackageRank || 'NONE';
+        skinEl.src = `https://crafatar.com/avatars/${uuid}?overlay`;
 
-        document.getElementById("playerName").textContent = player.displayname;
+        const bw = p.stats?.Bedwars||{};
+        statsEls.final_kills.textContent = pretty(bw.final_kills_bedwars);
+        statsEls.final_deaths.textContent = pretty(bw.final_deaths_bedwars);
+        const FKDR = ratio(bw.final_kills_bedwars,bw.final_deaths_bedwars);
+        statsEls.fkdr.textContent=FKDR;
+        statsEls.fkdrChip.textContent=FKDR>=2?'Good':FKDR>=1?'Average':'Low';
 
-        // Rank handling
-        let rank = player.newPackageRank || "DEFAULT";
-        if (player.rank) rank = player.rank;
-        if (rank === "VIP_PLUS") rank = "VIPPLUS";
-        if (rank === "MVP_PLUS") rank = "MVPPLUS";
-        if (rank === "MVP_PLUS_PLUS") rank = "MVPPLUSPLUS";
+        statsEls.kills.textContent=pretty(bw.kills_bedwars);
+        statsEls.deaths.textContent=pretty(bw.deaths_bedwars);
+        const KDR = ratio(bw.kills_bedwars,bw.deaths_bedwars);
+        statsEls.kdr.textContent=KDR;
+        statsEls.kdrChip.textContent=KDR>=2?'Good':KDR>=1?'Average':'Low';
 
-        const rankElement = document.getElementById("playerRank");
-        rankElement.textContent = formatRank(rank);
-        rankElement.className = "rank " + rank;
+        statsEls.wins.textContent=pretty(bw.wins_bedwars);
+        statsEls.losses.textContent=pretty(bw.losses_bedwars);
+        statsEls.wlr.textContent=ratio(bw.wins_bedwars,bw.losses_bedwars);
+        statsEls.gamesPlayed.textContent=`Games Played: ${pretty((bw.wins_bedwars||0)+(bw.losses_bedwars||0))}`;
 
-        // Bedwars stats
-        const bw = player.stats?.Bedwars || {};
-        const statsHTML = `
-          ⭐ Level: ${player.achievements?.bedwars_level || 0}<br>
-          ⚔️ Kills: ${bw.kills_bedwars || 0}<br>
-          ☠️ Deaths: ${bw.deaths_bedwars || 0}<br>
-          🛏 Beds Broken: ${bw.beds_broken_bedwars || 0}<br>
-          🏆 Wins: ${bw.wins_bedwars || 0}<br>
-          ❌ Losses: ${bw.losses_bedwars || 0}
-        `;
-        document.getElementById("stats").innerHTML = statsHTML;
+        statsEls.beds_broken.textContent=pretty(bw.beds_broken_bedwars);
+        statsEls.beds_lost.textContent=pretty(bw.beds_lost_bedwars);
+        statsEls.bblr.textContent=ratio(bw.beds_broken_bedwars,bw.beds_lost_bedwars);
 
-      } catch (err) {
-        document.getElementById("playerName").textContent = "Error loading stats";
+        statsEls.bw_star.textContent=bw.Experience?Math.floor(bw.Experience/5000)+'✯':'—✯';
+        statsEls.bw_xp.textContent=pretty(bw.Experience||0);
+
+        setStatusHint('Stats loaded successfully ✅');
+        localStorage.setItem('lastIGN', nameOrUuid);
+      } catch(err){
         console.error(err);
+        setStatusHint('Error: '+(err.message||err));
       }
     }
 
-    function formatRank(rank) {
-      switch(rank) {
-        case "VIP": return "[VIP]";
-        case "VIPPLUS": return "[VIP+]";
-        case "MVP": return "[MVP]";
-        case "MVPPLUS": return "[MVP+]";
-        case "MVPPLUSPLUS": return "[MVP++]";
-        case "YOUTUBER": return "[YOUTUBE]";
-        default: return "[DEFAULT]";
-      }
-    }
+    refreshBtn.addEventListener('click', ()=>load(nameInput.value.trim()));
+
+    // Auto-load last used IGN
+    window.addEventListener('load', ()=>{
+      const last = localStorage.getItem('lastIGN')||'YourIGN';
+      nameInput.value=last;
+      load(last);
+    });
   </script>
 </body>
 </html>
