@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>SkyWars Stats — Kaysoli</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1220" />
+  <style>
+    /* Keep all your original CSS (unchanged) */
+    /* ... everything from your BedWars file remains the same ... */
+  </style>
+</head>
+<body>
+  <div class="grid">
+    <header>
+      <div class="avatar"><img id="skin" alt="Skin" src="https://crafatar.com/avatars/8667ba71b85a4004af54457a9734eed7?overlay"></div>
+      <div class="titleblock">
+        <h1>
+          <span id="ign">Your IGN</span>
+          <span id="rank" class="rank-badge">RANK</span>
+        </h1>
+        <div class="subtitle" id="subtitle">SkyWars stats dashboard | Made by Kaysoli</div>
+      </div>
+      <div class="controls">
+        <input class="input" id="nameOrUuid" placeholder="Enter IGN or UUID" spellcheck="false">
+        <button class="btn" id="refreshBtn">Refresh</button>
+      </div>
+    </header>
+
+    <section class="cards" id="cards">
+      <div class="card"><div class="label">Kills</div><div class="value" id="kills">—</div><span class="chip good">Aggro</span></div>
+      <div class="card"><div class="label">Deaths</div><div class="value" id="deaths">—</div><span class="chip bad">Clutch?</span></div>
+      <div class="card"><div class="label">K/D Ratio</div><div class="value" id="kdr">—</div><span class="chip" id="kdrChip">—</span></div>
+      <div class="card"><div class="label">Wins</div><div class="value" id="wins">—</div><span class="chip good">GG</span></div>
+      <div class="card"><div class="label">Losses</div><div class="value" id="losses">—</div><span class="chip bad">Next</span></div>
+      <div class="card"><div class="label">W/L Ratio</div><div class="value" id="wlr">—</div><span class="chip" id="wlrChip">—</span></div>
+      <div class="card"><div class="label">Coins</div><div class="value" id="coins">—</div><span class="chip warn">Shop</span></div>
+      <div class="card"><div class="label">Souls</div><div class="value" id="souls">—</div><span class="chip good">Roll</span></div>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <div class="col">
+          <div class="label">SkyWars Level</div>
+          <div class="value" id="sw_level">—★</div>
+          <div class="tiny">XP: <span id="sw_xp">—</span></div>
+        </div>
+        <div class="col">
+          <div class="label">Games Played</div>
+          <div class="value" id="gamesPlayed">—</div>
+          <div class="tiny">Wins + Losses</div>
+        </div>
+        <div class="col">
+          <div class="label">Heads Collected</div>
+          <div class="value" id="heads">—</div>
+          <div class="tiny">Laboratory & Ranked</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="label">Recent Status</div>
+      <div id="status" class="skeleton" style="height:40px;margin-top:10px;border-radius:14px"></div>
+    </section>
+  </div>
+
+  <script>
+    const el = id => document.getElementById(id);
+    const ignEl = el('ign'), rankEl = el('rank'), skinEl = el('skin'), subtitleEl = el('subtitle');
+    const statsEls = {
+      kills: el('kills'), deaths: el('deaths'),
+      kdr: el('kdr'), kdrChip: el('kdrChip'),
+      wins: el('wins'), losses: el('losses'),
+      wlr: el('wlr'), wlrChip: el('wlrChip'),
+      coins: el('coins'), souls: el('souls'),
+      sw_level: el('sw_level'), sw_xp: el('sw_xp'),
+      gamesPlayed: el('gamesPlayed'), heads: el('heads'),
+      status: el('status')
+    };
+    const nameInput = el('nameOrUuid');
+    const refreshBtn = el('refreshBtn');
+
+    const API_KEY = '3e6f76ed-09e6-465d-972f-08716da6009a';
+
+    function pretty(n){ return Number(n||0).toLocaleString(); }
+    function ratio(a,b){ a=Number(a||0);b=Number(b||0); return b===0?a.toFixed(2):(a/b).toFixed(2); }
+
+    function setStatusHint(text){
+      statsEls.status.classList.remove('skeleton');
+      statsEls.status.style.padding='12px 14px';
+      statsEls.status.style.background='rgba(255,255,255,.06)';
+      statsEls.status.style.border='1px solid rgba(255,255,255,.12)';
+      statsEls.status.style.borderRadius='14px';
+      statsEls.status.textContent=text;
+    }
+
+    async function resolveUuid(nameOrUuid){
+      const raw=nameOrUuid.trim();
+      if(/^[0-9a-f]{32}$/i.test(raw)||/^[0-9a-f-]{36}$/i.test(raw)) return raw.replace(/-/g,'');
+      try{
+        const r = await fetch(`https://api.ashcon.app/mojang/v2/user/${encodeURIComponent(raw)}`);
+        if(!r.ok) throw new Error('Player not found');
+        const j=await r.json();
+        return j.uuid.replace(/-/g,'');
+      }catch(e){throw new Error('Could not resolve UUID for "'+raw+'".');}
+    }
+
+    async function load(nameOrUuid){
+      setStatusHint('Loading...');
+      try {
+        const uuid = await resolveUuid(nameOrUuid);
+        const res = await fetch(`https://api.hypixel.net/player?key=${API_KEY}&uuid=${uuid}`);
+        const data = await res.json();
+        if(!data.success||!data.player) throw new Error('No Hypixel data found');
+
+        const p = data.player;
+        ignEl.textContent = p.displayname || nameOrUuid;
+        rankEl.textContent = p.rank || p.monthlyPackageRank || p.newPackageRank || 'NONE';
+        skinEl.src = `https://crafatar.com/avatars/${uuid}?overlay`;
+
+        const sw = p.stats?.SkyWars||{};
+        statsEls.kills.textContent = pretty(sw.kills);
+        statsEls.deaths.textContent = pretty(sw.deaths);
+        const KDR = ratio(sw.kills, sw.deaths);
+        statsEls.kdr.textContent=KDR;
+        statsEls.kdrChip.textContent=KDR>=2?'Good':KDR>=1?'Average':'Low';
+
+        statsEls.wins.textContent = pretty(sw.wins);
+        statsEls.losses.textContent = pretty(sw.losses);
+        const WLR = ratio(sw.wins, sw.losses);
+        statsEls.wlr.textContent=WLR;
+        statsEls.wlrChip.textContent=WLR>=1?'Positive':'Negative';
+
+        statsEls.coins.textContent = pretty(sw.coins);
+        statsEls.souls.textContent = pretty(sw.souls);
+
+        statsEls.sw_level.textContent = sw.level? Math.floor(sw.level)+'★':'—★';
+        statsEls.sw_xp.textContent = pretty(sw.skywars_experience||0);
+        statsEls.gamesPlayed.textContent = pretty((sw.wins||0)+(sw.losses||0));
+        statsEls.heads.textContent = pretty(sw.heads||0);
+
+        setStatusHint('Stats loaded successfully ✅');
+        localStorage.setItem('lastIGN', nameOrUuid);
+      } catch(err){
+        console.error(err);
+        setStatusHint('Error: '+(err.message||err));
+      }
+    }
+
+    refreshBtn.addEventListener('click', ()=>load(nameInput.value.trim()));
+
+    window.addEventListener('load', ()=>{
+      const last = localStorage.getItem('lastIGN')||'YourIGN';
+      nameInput.value=last;
+      load(last);
+    });
+  </script>
+</body>
+</html>
