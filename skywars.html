@@ -8,8 +8,199 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#0b1220" />
   <style>
-    /* Keep all your original CSS (unchanged) */
-    /* ... everything from your BedWars file remains the same ... */
+   :root{
+      --bg: #0b1220;
+      --bg2: #0e1528;
+      --card: rgba(255,255,255,0.06);
+      --text: #eaf0ff;
+      --muted: #8ea2c6;
+      --accent: #6ea8ff;
+      --good: #73e2a7;
+      --bad: #ff7a7a;
+      --warn: #ffd479;
+      --shadow: 0 20px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+      --radius: 24px;
+    }
+    *{ box-sizing: border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      font-family: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 80% -10%, #1c2e6b33 0%, transparent 60%),
+        radial-gradient(1000px 700px at -10% 110%, #4b79ff22 0%, transparent 60%),
+        linear-gradient(180deg, #0a1120 0%, #0b1220 100%);
+      overflow-x: hidden;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 22px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 12px;
+      z-index: 3;
+    }
+    .avatar{
+      width:64px;height:64px;border-radius:18px; overflow:hidden; flex-shrink:0;
+      box-shadow: 0 10px 20px rgba(0,0,0,.35);
+      transform: translateZ(0);
+    }
+    .avatar img{ width:100%; height:100%; image-rendering: pixelated }
+    .titleblock{ display:flex; flex-direction:column; gap:6px; min-width:0 }
+    h1{
+      font-size: 20px; margin:0; letter-spacing:.2px; display:flex; gap:10px; align-items: center;
+    }
+    .rank-badge{
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.16);
+      font-size: 12px;
+      letter-spacing:.4px
+    }
+    .subtitle{ color: var(--muted); font-size:13px; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .controls{
+      margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap: wrap;
+    }
+    .input{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: var(--text);
+      outline:none;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .input:focus{
+      border-color: #7fb3ff;
+      box-shadow: 0 0 0 6px rgba(127,179,255,.09);
+      transform: translateY(-1px);
+    }
+    .btn{
+      background: linear-gradient(180deg, #6ea8ff, #5a96ff);
+      color:#081228;
+      font-weight: 800;
+      border:none;
+      padding: 10px 14px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: transform .15s ease, filter .15s ease, box-shadow .2s ease;
+      box-shadow: 0 12px 24px rgba(82,126,255,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+    .btn:hover{ transform: translateY(-2px); filter: brightness(1.03) }
+    .btn:active{ transform: translateY(0) scale(.98) }
+    .ghost{
+      background: transparent;
+      color: var(--text);
+      border: 1px dashed rgba(255,255,255,.18);
+      box-shadow: none;
+    }
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    @media (min-width: 900px){
+      .cards{ grid-template-columns: repeat(4, 1fr) }
+    }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-height: 110px;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(6px) scale(0.98);
+      opacity: 0;
+      animation: pop .6s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    .card:nth-child(1){ animation-delay: .02s }
+    .card:nth-child(2){ animation-delay: .06s }
+    .card:nth-child(3){ animation-delay: .10s }
+    .card:nth-child(4){ animation-delay: .14s }
+    .card:nth-child(5){ animation-delay: .18s }
+    .card:nth-child(6){ animation-delay: .22s }
+    .card:nth-child(7){ animation-delay: .26s }
+    .card:nth-child(8){ animation-delay: .30s }
+    @keyframes pop{
+      to{ transform: translateY(0) scale(1); opacity: 1 }
+    }
+    .label{ color: var(--muted); font-size: 13px; letter-spacing:.4px }
+    .value{ font-size: 28px; font-weight: 800; margin-top: 4px }
+    .chip{ position:absolute; right:12px; top:12px; font-size: 11px; opacity:.9; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14) }
+    .good{ background: rgba(115,226,167,.12); color:#a7ffd2 }
+    .bad{ background: rgba(255,122,122,.12); color:#ffb3b3 }
+    .warn{ background: rgba(255,212,121,.12); color:#ffe3a4 }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .row{ display:flex; gap:18px; align-items:stretch; flex-wrap: wrap }
+    .col{ flex:1; min-width: 260px }
+    .skeleton{
+      background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.14), rgba(255,255,255,.06));
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 12px;
+      height: 18px;
+      opacity:.8
+    }
+    @keyframes shimmer{
+      0%{ background-position: 200% 0 }
+      100%{ background-position: -200% 0 }
+    }
+    .footer{
+      color: var(--muted);
+      text-align:center;
+      font-size:12px;
+      padding: 14px 0 40px;
+      opacity:.8
+    }
+    .pulse{
+      animation: pulsey 1.6s ease-in-out infinite;
+    }
+    @keyframes pulsey{
+      0%,100%{ transform: scale(1) }
+      50%{ transform: scale(1.03) }
+    }
+    .tiny{ font-size: 11px; color: var(--muted); letter-spacing:.3px }
+    .bubble{
+      position: fixed;
+      pointer-events:none;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #9cc3ff33, transparent 60%);
+      width: 24px; height:24px;
+      filter: blur(1px);
+      animation: float 12s ease-in-out infinite;
+      opacity: .35;
+      z-index: 0;
+    }
+    @keyframes float{
+      0%{ transform: translateY(0) translateX(0) }
+      50%{ transform: translateY(-18px) translateX(6px) }
+      100%{ transform: translateY(0) translateX(0) }
+    }
   </style>
 </head>
 <body>
