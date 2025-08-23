@@ -47,42 +47,17 @@
     }
 
     .card {
-      position: relative;
+      background: #1a1c22;
       border-radius: 1.5rem;
       padding: 2rem;
       text-align: center;
-      overflow: hidden;
-      cursor: pointer;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
-      background: #1a1c22;
-      z-index: 0;
+      cursor: pointer;
     }
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      filter: blur(6px) brightness(0.5);
-      z-index: -1;
-      transition: transform 0.3s ease;
-    }
-
-    .card:hover::before {
-      transform: scale(1.05);
-    }
-
-    .skywars::before {
-      background-image: url("https://hypixel.net/attachments/skywars-png.312715/"); /* replace with a clean SkyWars bg */
-    }
-
-    .bedwars::before {
-      background-image: url("https://hypixel.net/attachments/bedwars-png.312716/"); /* replace with BedWars bg */
-    }
-
-    .duels::before {
-      background-image: url("https://hypixel.net/attachments/duels-png.312717/"); /* replace with Duels bg */
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
     }
 
     .card h2 {
@@ -92,7 +67,7 @@
 
     .card p {
       font-size: 0.95rem;
-      color: #e5e7eb;
+      color: #cfd3da;
     }
 
     footer {
@@ -103,25 +78,25 @@
   </style>
 </head>
 <body>
-  <h1>KAYSOLI | STATISTICS</h1>
+  <h1>Kaysoli</h1>
 
   <div class="cards">
-    <div class="card skywars" onclick="location.href='skywars.html'">
+    <div class="card" onclick="location.href='skywars.html'">
       <h2>SkyWars</h2>
       <p>View detailed SkyWars statistics and history.</p>
     </div>
 
-    <div class="card bedwars" onclick="location.href='bedwars.html'">
+    <div class="card" onclick="location.href='bedwars.html'">
       <h2>BedWars</h2>
       <p>Track your BedWars progress and win rate.</p>
     </div>
 
-    <div class="card duels" onclick="location.href='duels.html'">
+    <div class="card" onclick="location.href='duels.html'">
       <h2>Duels</h2>
       <p>Check your performance across different duel modes.</p>
     </div>
   </div>
 
-  <footer>© 2025 KAYSOLI. Not affiliated with Hypixel.</footer>
+  <footer>© 2025 Kaysoli. Not affiliated with Hypixel.</footer>
 </body>
 </html>
