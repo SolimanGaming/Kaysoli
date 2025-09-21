@@ -2,28 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GD By Soli</title>
+  <title>Full-Screen Scratch Embed</title>
   <style>
-    body {
-      background:#f0f0f0;
-      text-align:center;
-      padding:40px;
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000; /* optional */
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
     }
   </style>
 </head>
 <body>
-
-  <h1>Play the Game!</h1>
-
   <iframe
     src="https://scratch.mit.edu/projects/105500895/embed"
     allowtransparency="true"
-    width="485"
-    height="402"
     frameborder="0"
     scrolling="no"
     allowfullscreen>
   </iframe>
-
 </body>
 </html>
