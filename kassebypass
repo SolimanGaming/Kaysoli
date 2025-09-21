@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini Geometry Dash — 5 Levels</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#0f1724;
+    --accent:#00d4ff;
+    --muted:#9aa6b2;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg) 0%, #06101a 100%);color:#e6eef6}
+  .wrap{display:flex;gap:18px;height:100%;padding:18px;box-sizing:border-box}
+  .game{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  canvas{background:linear-gradient(180deg,#07101a 0%, #081621 100%);border-radius:10px;box-shadow:0 6px 30px rgba(0,0,0,.6);max-width:100%;width:900px;height:500px}
+  .ui{
+    width:900px;display:flex;justify-content:space-between;align-items:center;margin-top:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:10px;border-radius:8px;color:var(--muted);
+    box-shadow:0 4px 16px rgba(2,6,23,.6);
+  }
+  .ui .left{display:flex;gap:10px;align-items:center}
+  .btn{
+    background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:var(--muted);cursor:pointer;
+  }
+  .btn.primary{border-color:var(--accent);color:var(--accent)}
+  .levels{display:flex;gap:8px}
+  .level-btn{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;background:transparent;color:var(--muted)}
+  .level-btn.active{background:linear-gradient(90deg, rgba(0,212,255,0.08), rgba(0,212,255,0.03));border-color:rgba(0,212,255,0.15);color:var(--accent)}
+  .panel{
+    width:260px;background:var(--panel);border-radius:10px;padding:12px;box-shadow:0 6px 30px rgba(0,0,0,.6);
+  }
+  .panel h3{margin:4px 0 8px 0;color:var(--muted);font-size:14px}
+  .stats{font-size:13px;color:#dfeaf3;line-height:1.5}
+  .muted{color:var(--muted)}
+  .footer{font-size:12px;color:var(--muted);margin-top:8px}
+  .big{font-weight:700;color:#fff;font-size:18px}
+  @media (max-width:1000px){
+    .wrap{flex-direction:column;align-items:center}
+    .panel{width:100%}
+    canvas{width:100%;height:420px}
+    .ui{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="game">
+    <canvas id="c" width="900" height="500"></canvas>
+    <div class="ui">
+      <div class="left">
+        <button class="btn" id="startBtn">Start</button>
+        <button class="btn" id="restartBtn">Restart</button>
+        <div style="display:flex;align-items:center;margin-left:8px;">
+          <span class="muted" style="margin-right:8px">Controls:</span>
+          <span class="btn">Space</span>
+          <span style="margin-left:6px" class="muted">or click</span>
+        </div>
+      </div>
+      <div class="levels" id="levels"></div>
+      <div class="muted">Level <span id="levelNum">1</span> • Score <span id="score">0</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Mini Geometry Dash</h3>
+    <div class="stats">
+      <div><span class="big" id="statusText">Ready</span></div>
+      <div class="footer">Jump to avoid spikes and gaps. Survive to reach the end of a level.</div>
+      <hr style="opacity:.06;margin:10px 0">
+      <div><strong>Best:</strong> <span id="best">0</span></div>
+      <div><strong>Tries:</strong> <span id="tries">0</span></div>
+      <hr style="opacity:.06;margin:10px 0">
+      <div><strong>Level info:</strong></div>
+      <div id="levelInfo" style="margin-top:6px;color:var(--muted)">Easy — rhythmic obstacles</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+Mini Geometry Dash — single file
+Features:
+- Canvas drawing
+- 5 levels, different speed & obstacle patterns
+- Music generated with WebAudio (sequencer per level)
+- Space / Click to jump
+- Single-file, no external assets
+*/
+
+// ----- Game variables -----
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d', { alpha: false });
+let W = canvas.width, H = canvas.height;
+
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const levelNumLabel = document.getElementById('levelNum');
+const scoreLabel = document.getElementById('score');
+const statusText = document.getElementById('statusText');
+const bestLabel = document.getElementById('best');
+const triesLabel = document.getElementById('tries');
+const levelInfo = document.getElementById('levelInfo');
+const levelsDiv = document.getElementById('levels');
+
+let running = false;
+let playing = false;
+let score = 0;
+let best = 0;
+let tries = 0;
+
+// ----- Player -----
+const player = {
+  x: 120,
+  y: 0,
+  w: 28,
+  h: 28,
+  vy: 0,
+  grounded: false,
+  color: '#00d4ff'
+};
+
+// ----- Physics -----
+const gravity = 1600;
+const jumpVel = -620;
+
+// ----- Level and world -----
+let levelIndex = 0;
+const levels = [
+  { name: 'Neon Start', speed: 280, gapMin: 280, gapMax: 420, spikeFreq: 0.12, length: 4200, music: 'level1', info:'Easy — learn the rhythm' },
+  { name: 'Retro Rush', speed: 340, gapMin: 220, gapMax: 380, spikeFreq: 0.16, length: 5200, music: 'level2', info:'More frequent obstacles' },
+  { name: 'Pulse Drive', speed: 420, gapMin: 180, gapMax: 320, spikeFreq: 0.2, length: 6200, music: 'level3', info:'Tighter timing' },
+  { name: 'Vector Valley', speed: 500, gapMin: 140, gapMax: 280, spikeFreq: 0.24, length: 7200, music: 'level4', info:'Fast & tricky' },
+  { name: 'Hyper Core', speed: 620, gapMin: 120, gapMax: 220, spikeFreq: 0.3, length: 9000, music: 'level5', info:'Insane — good luck!' }
+];
+
+// world holds obstacle segments generated procedurally per level
+let world = [];
+let worldOffset = 0; // how far the world has scrolled
+let levelLength = 0;
+
+// obstacles are objects with x, w, h, type ('spike'|'block'|'gap')
+function generateWorldForLevel(index) {
+  const L = levels[index];
+  world = [];
+  worldOffset = 0;
+  levelLength = L.length;
+  // create flat ground then pattern of obstacles
+  let x = 0;
+  // initial safe run
+  x += 320;
+  while (x < L.length) {
+    // randomly choose obstacle or gap
+    if (Math.random() < 0.18) { // block
+      let bw = 30 + Math.random()*60;
+      world.push({type:'block', x, w: bw, h: 40 + Math.random()*60});
+      x += bw + (L.gapMin + Math.random()*(L.gapMax-L.gapMin));
+    } else if (Math.random() < L.spikeFreq) {
+      // spike cluster
+      let count = 1 + Math.floor(Math.random()*3);
+      for (let i=0;i<count;i++){
+        world.push({type:'spike', x: x + i*24, w:24, h: 24});
+      }
+      x += count*24 + (120 + Math.random()*160);
+    } else {
+      // gap
+      let gap = L.gapMin + Math.random()*(L.gapMax-L.gapMin);
+      x += gap;
+    }
+    // small random safe stretches
+    if (Math.random() < 0.08) x += 200 + Math.random()*200;
+  }
+  // ensure final platform at the end
+  world.push({type:'block', x: levelLength-220, w:220, h: 48});
+}
+
+// ----- Audio (simple sequencer) -----
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let musicPlaying = false;
+let musicOsc = null;
+let musicGain = null;
+let musicTimer = null;
+
+const noteDur = 0.20;
+
+const musicPresets = {
+  // sequences are arrays of [freq, durationMultiplier]
+  level1: { bpm:100, seq: [440,0, 440,0, 523,0, 659,2, 523,1, 440,1] },
+  level2: { bpm:120, seq: [523,0.5, 587,0.5, 659,1, 523,0.5, 659,0.5, 784,1] },
+  level3: { bpm:130, seq: [330,0.5, 392,0.5, 523,1, 392,0.5, 523,0.5, 659,1] },
+  level4: { bpm:150, seq: [392,0.25, 440,0.25, 494,0.5, 523,1, 659,1, 587,0.5, 523,0.25] },
+  level5: { bpm:175, seq: [659,0.25, 740,0.25, 880,0.5, 740,0.5, 880,1, 988,1] }
+};
+
+function playMusicFor(levelKey) {
+  stopMusic();
+  const preset = musicPresets[levelKey];
+  if (!preset) return;
+  let seq = preset.seq;
+  musicOsc = audioCtx.createOscillator();
+  musicGain = audioCtx.createGain();
+  musicOsc.type = 'sine';
+  musicGain.gain.value = 0;
+  musicOsc.connect(musicGain);
+  musicGain.connect(audioCtx.destination);
+  musicOsc.start();
+
+  // schedule a repeating loop using setInterval
+  let i = 0;
+  const beat = 60 / preset.bpm;
+  musicPlaying = true;
+  musicTimer = setInterval(()=>{
+    if (!musicPlaying) return;
+    // play one item
+    const v = seq[i % seq.length];
+    if (v !== 0) {
+      // if the sequence is [freq, dur, freq, dur,...] but we used a simplified one, do pattern: [freq,dur,freq,dur...]
+      // Our sequences are interspersed freq, multiplier
+      const freq = seq[i % seq.length];
+      const mult = seq[(i+1) % seq.length] || 1;
+      note(freq, beat*mult);
+      i = i + 2;
+    } else {
+      i++;
+    }
+    if (i >= seq.length) i = 0;
+  }, beat * 1000 / 2); // sample quicker so durations are approximate
+}
+
+function note(freq, dur) {
+  if (!musicOsc || !musicGain) return;
+  // simple envelope: ramp up and down via gain automation using exponentialRamp
+  const now = audioCtx.currentTime;
+  musicOsc.frequency.setValueAtTime(freq, now);
+  musicGain.gain.cancelScheduledValues(now);
+  musicGain.gain.setValueAtTime(0.0001, now);
+  musicGain.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+  musicGain.gain.exponentialRampToValueAtTime(0.0001, now + Math.max(0.02, dur-0.02));
+}
+
+function stopMusic() {
+  musicPlaying = false;
+  if (musicTimer) {
+    clearInterval(musicTimer);
+    musicTimer = null;
+  }
+  if (musicGain){
+    try{musicGain.gain.cancelScheduledValues(audioCtx.currentTime);}catch(e){}
+  }
+}
+
+// ----- Input -----
+let wantJump = false;
+window.addEventListener('keydown', (e)=> {
+  if (e.code === 'Space') { wantJump = true; e.preventDefault(); }
+});
+canvas.addEventListener('mousedown', ()=> wantJump = true);
+startBtn.addEventListener('click', ()=> {
+  if (!running) startGame();
+  else resumeGame();
+});
+restartBtn.addEventListener('click', ()=> {
+  restartLevel();
+});
+
+// ----- Utility -----
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function rand(a,b){return a + Math.random()*(b-a);}
+
+// ----- Game flow -----
+function startGame() {
+  running = true;
+  playing = true;
+  score = 0;
+  tries = 0;
+  levelIndex = 0;
+  startLevel(levelIndex);
+  statusText.textContent = 'Playing';
+  startBtn.textContent = 'Pause';
+}
+
+function resumeGame(){
+  playing = true;
+  statusText.textContent = 'Playing';
+  startBtn.textContent = 'Pause';
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  playMusicFor(levels[levelIndex].music);
+}
+
+function pauseGame(){
+  playing = false;
+  statusText.textContent = 'Paused';
+  startBtn.textContent = 'Resume';
+  stopMusic();
+}
+
+function restartLevel(){
+  tries++;
+  triesLabel.textContent = tries;
+  initPlayer();
+  generateWorldForLevel(levelIndex);
+  worldOffset = 0;
+  score = 0;
+  scoreLabel.textContent = score;
+  statusText.textContent = 'Restarted';
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  playMusicFor(levels[levelIndex].music);
+}
+
+function startLevel(idx){
+  levelIndex = idx;
+  levelNumLabel.textContent = (levelIndex+1);
+  levelInfo.textContent = levels[levelIndex].info;
+  initPlayer();
+  generateWorldForLevel(levelIndex);
+  worldOffset = 0;
+  score = 0;
+  scoreLabel.textContent = score;
+  statusText.textContent = 'Playing';
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  playMusicFor(levels[levelIndex].music);
+}
+
+// ----- Player init -----
+function initPlayer(){
+  player.y = H - 120 - player.h;
+  player.vy = 0;
+  player.grounded = true;
+  wantJump = false;
+}
+
+// ----- Collision -----
+function intersects(a,b){
+  return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
+}
+
+// ----- Main loop -----
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.032, (now - last)/1000);
+  last = now;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// update
+function update(dt){
+  if (!running) return;
+  if (!playing) return;
+
+  const lvl = levels[levelIndex];
+  const speed = lvl.speed;
+
+  // player physics
+  if (wantJump && player.grounded){
+    player.vy = jumpVel;
+    player.grounded = false;
+    wantJump = false;
+  }
+  // integrate
+  player.vy += gravity * dt;
+  player.y += player.vy * dt;
+  // ground collision
+  const groundY = H - 100;
+  if (player.y + player.h > groundY){
+    player.y = groundY - player.h;
+    player.vy = 0;
+    player.grounded = true;
+  }
+
+  // world scroll
+  worldOffset += speed * dt;
+  score = Math.floor(worldOffset / 10);
+  scoreLabel.textContent = score;
+  best = Math.max(best, score);
+  bestLabel.textContent = best;
+
+  // check collisions with obstacles (translate world object positions by -worldOffset)
+  for (let obj of world){
+    const ox = obj.x - worldOffset;
+    if (ox + obj.w < 0 || ox > W) continue;
+    if (obj.type === 'block'){
+      const blockRect = {x: ox, y: H - 100 - obj.h, w: obj.w, h: obj.h};
+      if (intersects(player, blockRect)){
+        // simple handling: if hitting from top, place on top; else die
+        if (player.vy > 0 && (player.y + player.h - blockRect.y) < 18){
+          player.y = blockRect.y - player.h;
+          player.vy = 0;
+          player.grounded = true;
+        } else {
+          // death
+          onDeath();
+        }
+      }
+    } else if (obj.type === 'spike'){
+      const spikeRect = {x: ox, y: H - 100 - obj.h, w: obj.w, h: obj.h};
+      if (intersects(player, spikeRect)){
+        onDeath();
+      }
+    }
+    // gaps: we treat as absence of ground — falling is natural
+  }
+
+  // reach level end
+  if (worldOffset >= levelLength - 100) {
+    // level complete
+    playing = false;
+    stopMusic();
+    statusText.textContent = 'Level Complete!';
+    // move to next level after short delay
+    setTimeout(()=>{
+      if (levelIndex < levels.length -1){
+        levelIndex++;
+        startLevel(levelIndex);
+      } else {
+        statusText.textContent = 'You beat all levels! Restart to play again.';
+      }
+    }, 900);
+  }
+}
+
+function onDeath(){
+  stopMusic();
+  playing = false;
+  tries++;
+  triesLabel.textContent = tries;
+  statusText.textContent = 'You Died — Restart or Retry';
+  // small vibration effect on canvas (CSS-ish)
+  flashCanvas();
+}
+
+// flash effect
+function flashCanvas(){
+  canvas.style.transition = 'transform 0.06s';
+  canvas.style.transform = 'translateY(6px)';
+  setTimeout(()=>{canvas.style.transform='translateY(0)';},70);
+}
+
+// render
+function render(){
+  // clear
+  ctx.fillStyle = '#06121a';
+  ctx.fillRect(0,0,W,H);
+
+  // draw background grid + parallax
+  drawBackground();
+
+  // ground
+  const groundY = H - 100;
+  ctx.fillStyle = '#0b1722';
+  ctx.fillRect(0, groundY, W, 100);
+  // ground pattern
+  for (let gx = -Math.floor(worldOffset%40); gx < W; gx += 40){
+    ctx.fillStyle = ( (gx/40)%2 === 0 ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.01)');
+    ctx.fillRect(gx, groundY + 2, 20, 96);
+  }
+
+  // draw world obstacles
+  for (let obj of world){
+    const ox = Math.floor(obj.x - worldOffset);
+    if (ox + obj.w < -50 || ox > W + 50) continue;
+    if (obj.type === 'block'){
+      const bh = obj.h;
+      const by = groundY - bh;
+      drawRoundedRect(ox, by, obj.w, bh, 6, '#1b3a47');
+      // highlight
+      ctx.fillStyle = 'rgba(0,212,255,0.06)';
+      ctx.fillRect(ox+6, by+6, obj.w-12, Math.min(18, bh-6));
+    } else if (obj.type === 'spike'){
+      // draw simple triangle spikes
+      const sh = obj.h;
+      const sy = groundY - sh;
+      ctx.fillStyle = '#ff5b5b';
+      for (let i=0;i<obj.w;i+=24){
+        ctx.beginPath();
+        ctx.moveTo(ox+i+12, sy);
+        ctx.lineTo(ox+i, sy+sh);
+        ctx.lineTo(ox+i+24, sy+sh);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+  }
+
+  // draw player (rounded square)
+  drawRoundedRect(player.x, player.y, player.w, player.h, 6, player.color);
+  // player indicator
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.fillRect(player.x+6, player.y+10, player.w-12, 6);
+
+  // progress bar top
+  const pct = clamp(worldOffset / (levelLength - 100), 0, 1);
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillRect(20, 18, W-40, 8);
+  ctx.fillStyle = '#00d4ff';
+  ctx.fillRect(20, 18, (W-40)*pct, 8);
+  // small circle at progress
+  ctx.fillStyle = '#001122';
+  ctx.beginPath();ctx.arc(20 + (W-40)*pct, 22, 8, 0, Math.PI*2);ctx.fill();
+  ctx.strokeStyle = '#00d4ff';ctx.lineWidth=2;ctx.stroke();
+}
+
+// draw background with simple parallax rectangles
+function drawBackground(){
+  const t = performance.now() * 0.0002;
+  for (let i=0;i<8;i++){
+    const w = 140 + i*40;
+    const x = ( (i*160 + (-worldOffset*0.2) + Math.sin(t*(i+1))*40) % (W+400) ) - 200;
+    const y = 40 + i*28;
+    ctx.fillStyle = `rgba(0,212,255,${0.02 + i*0.01})`;
+    roundRect(ctx, x, y, w, 14, 8, true, false);
+  }
+}
+
+// small drawing helpers
+function drawRoundedRect(x,y,w,h,r,color){
+  ctx.fillStyle = color;
+  roundRect(ctx, x, y, w, h, r, true, false);
+}
+
+function roundRect(ctx,x,y,w,h,r,fill,stroke){
+  if (typeof r === 'undefined') r = 5;
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  if (stroke) ctx.stroke();
+}
+
+// ----- Build level buttons UI -----
+function buildLevelButtons(){
+  levelsDiv.innerHTML = '';
+  levels.forEach((lv,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'level-btn' + (i===levelIndex ? ' active' : '');
+    btn.textContent = `${i+1}. ${lv.name}`;
+    btn.title = lv.info;
+    btn.addEventListener('click', ()=>{
+      levelIndex = i;
+      levelNumLabel.textContent = (i+1);
+      document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      startLevel(i);
+    });
+    levelsDiv.appendChild(btn);
+  });
+}
+buildLevelButtons();
+
+// Start initial view
+initPlayer();
+generateWorldForLevel(levelIndex);
+levelInfo.textContent = levels[levelIndex].info;
+triesLabel.textContent = tries;
+bestLabel.textContent = best;
+
+// start rendering loop
+requestAnimationFrame(loop);
+
+// ensure audio context resumes on first user gesture
+document.addEventListener('click', ()=> {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}, {once:true});
+
+// accessibility: tap to start playing
+canvas.addEventListener('touchstart', ()=> { wantJump = true; });
+
+// small hint: show status
+statusText.textContent = 'Ready — Press Start';
+
+// Make canvas responsive to window
+window.addEventListener('resize', ()=>{
+  // keep canvas css size, internal resolution fixed for simplicity
+});
+// end of script
+</script>
+</body>
+</html>
