@@ -1,31 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Full-Screen Scratch Embed</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      background: #000; /* optional */
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scratch Full Screen</title>
+<style>
+  /* Make sure the page itself takes up the full window */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* No scrollbars */
+    background: #000;
+  }
+  /* Force the iframe to cover the whole page */
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>
 </head>
 <body>
-  <iframe
-    src="https://scratch.mit.edu/projects/105500895/embed"
-    allowtransparency="true"
-    frameborder="0"
-    scrolling="no"
-    allowfullscreen>
-  </iframe>
+
+<iframe
+  src="https://scratch.mit.edu/projects/105500895/embed"
+  allowtransparency="true"
+  scrolling="no"
+  allowfullscreen>
+</iframe>
+
 </body>
 </html>
